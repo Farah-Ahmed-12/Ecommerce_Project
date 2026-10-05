@@ -292,20 +292,174 @@ The main validation process covered:
 
 All cleaning transformations were implemented through SQL Views. The original source tables were kept unchanged to preserve data lineage and allow comparison with the raw data.
 
-## Data Model & Grain
+# Power BI Dashboard & Analysis
 
-The cleaned views represent different levels of detail:
+After completing the SQL data cleaning and validation process, the cleaned analytical views were imported into **Power BI** for data modeling, DAX calculations, business analysis, and interactive dashboard development.
 
-- `vw_customer_master_clean`: one row per customer
-- `vw_ecommerce_sales_customer_clean`: one row per order
-- `vw_order_items_cleaned`: one row per order-product line
-- `vw_Product_cleaned`: one row per product
+The dashboard was designed to transform the cleaned e-commerce data into actionable insights across **sales, customers, products, orders, payments, and shipping performance**.
 
-Relationships:
+---
 
-- Customer → Orders: `customer_id`
-- Orders → Order Items: `order_id`
-- Products → Order Items: `product_id`
+## Data Modeling
 
-Order-level quantity was compared with aggregated order-item quantities, distinct product counts, and line counts. 
-Differences were observed because the order-level quantity field does not represent the same grain as the line-item measures.
+A relational analytical model was created in Power BI using the cleaned SQL views.
+
+The model follows a **star-schema-oriented structure**, with customer and product dimensions connected to transactional order and order-item data.
+
+### Relationships
+
+- `vw_customer_master_clean` → `vw_ecommerce_sales_customer_clean` using `customer_id`
+- `vw_ecommerce_sales_customer_clean` → `vw_order_items_cleaned` using `order_id`
+- `vw_Product_cleaned` → `vw_order_items_cleaned` using `product_id`
+
+Single-direction filtering was used to maintain a clear filter flow and avoid ambiguous relationships.
+
+### Data Grain
+
+| Table | Grain |
+|---|---|
+| `vw_customer_master_clean` | One row per customer |
+| `vw_ecommerce_sales_customer_clean` | One row per order |
+| `vw_order_items_cleaned` | One row per order-product line |
+| `vw_Product_cleaned` | One row per product |
+
+### Power BI Data Model
+
+<p align="center">
+ <img width="1771" height="729" alt="Screenshot (2212)" src="https://github.com/user-attachments/assets/7b6ffb72-8ed7-44dd-907b-5726effed1d5" />
+
+</p>
+---
+
+## DAX Measures
+
+DAX measures were created to support the dashboard analysis and ensure that calculations were performed at the appropriate data grain.
+
+### Key Measures
+
+- Total Orders
+- Total Customers
+- Total Products
+- Total Net Sales
+- Total Profit
+- Average Order Value
+- Profit Margin
+- Total Quantity
+- Average Customer Revenue
+- Average Orders per Customer
+- Total Loyalty Points Earned
+- Customer Lifetime Value
+- Product Net Sales
+- Product Profit
+- Product Profit Margin
+- Average Discount Percentage
+
+Order-level metrics were calculated from the vw_ecommerce_sales_customer_clean view, while product-level sales, quantity, discount, and profitability metrics were calculated from the vw_order_items_cleaned view to avoid double-counting.
+
+---
+
+# Dashboard Pages
+
+## 1. Executive Overview
+
+The **Executive Overview** provides a high-level summary of overall business performance.
+
+### Key Analysis
+
+- Total Orders
+- Total Net Sales
+- Total Profit
+- Total Customers
+- Sales Trends
+- Order Status
+- Top 5 Products By Sales
+- Overall Business KPIs
+
+### Dashboard Preview
+<p align="center">
+  <img width="1337" height="737" alt="Screenshot (2213)" src="https://github.com/user-attachments/assets/ebab8dc2-f5c2-47ee-96c6-5e1e40088601" />
+
+</p>
+
+---
+
+## 2. Sales & Customer Analysis
+
+This page focuses on **sales performance and customer behavior**.
+
+### Key Analysis
+
+- Average Customer Revenue
+- Customer Lifetime Value
+- Customer Segments
+- Customer Age Groups
+- Sales by Country / State
+- loyalty Points vs Net Sales by customer
+
+### Dashboard Preview
+
+<p align="center">
+  <img width="1351" height="749" alt="Screenshot (2215)" src="https://github.com/user-attachments/assets/20fa7c86-4cc0-4a67-a67a-a10ac8a08a31" />
+
+</p>
+
+---
+
+## 3. Product & Sales Performance
+
+This page analyzes **product-level sales, quantity, discounts, costs, and profitability**.
+
+### Key Analysis
+
+- Top Products by Net Sales
+- Top Products by Profit
+- Product Quantity
+- Product Cost vs. Profit
+- Discount Rate vs. Profit Margin
+- Product Category Performance
+- Product-Level Profitability
+
+Product-level measures are calculated using the order-item grain so that sales, quantity, discounts, and profit are correctly attributed to individual products.
+
+### Dashboard Preview
+
+<p align="center">
+  <img width="1328" height="743" alt="Screenshot (2216)" src="https://github.com/user-attachments/assets/2e20872d-626c-410c-9085-e6b65dcb3cb9" />
+
+</p>
+
+---
+
+## 4. Order & Sales Performance
+
+This page focuses on **order activity, sales trends, payment methods, and shipping methods**.
+
+### Key Analysis
+
+- Orders Over Time
+- Net Sales Over Time
+- Orders by Payment Method
+- Returned Quantity by Return Reason
+- Orders by Payment Method and Order Status
+- Net Sales by Shipping Method
+- Yearly Sales Performance
+
+### Dashboard Preview
+
+<p align="center">
+  <img width="1316" height="731" alt="Screenshot (2224)" src="https://github.com/user-attachments/assets/f3d79f51-97bf-417c-87ed-3495ff776649" />
+
+</p>
+
+---
+
+## Interactive Features
+
+The dashboard includes interactive Power BI features that allow users to explore the data dynamically.
+
+- Slicers
+- Cross-filtering
+- Drill-through
+- Dynamic DAX Measures
+- KPI Cards
+- Interactive Charts
